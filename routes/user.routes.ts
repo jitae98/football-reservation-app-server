@@ -1,6 +1,6 @@
 import type { Request, Response, NextFunction } from "express";
 import { Router } from "express";
-import User from "../models/user.model.ts";
+import User from "../models/user.model";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
@@ -13,13 +13,20 @@ router.post(
     try {
       const { name, email, password } = req.body;
 
+      // Check if all fields are provided
+      if (!name || !email || !password) {
+        return res
+          .status(400)
+          .json({ message: "Name, email, and password are required" });
+      }
+
       // Check if user already registered
       const existingUser = await User.findOne({ email });
       if (existingUser) {
-        return res.status(400).json({ message: `Already registered` });
+        return res.status(400).json({ message: "Already registered" });
       }
 
-      // Hashed the password
+      // Hash the password
       const hashedPassword = await bcrypt.hash(password, 10);
 
       // Create a new user
@@ -47,7 +54,7 @@ router.post(
           .json({ message: "Invalid username or password" });
       }
 
-      // Compared password
+      // Compare password
       const isMatch = await bcrypt.compare(password, user.password);
       if (!isMatch) {
         return res
@@ -67,7 +74,7 @@ router.post(
   }
 );
 
-// Create a new user
+// Create a new user (extra route, not required for registration)
 router.post("/", async (req: Request, res: Response, next: NextFunction) => {
   try {
     const user = new User(req.body);
