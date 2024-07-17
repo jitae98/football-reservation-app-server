@@ -11,11 +11,16 @@ configDotenv();
 const app = express();
 app.use(express.json());
 
+const MONGGO_DB_URL =
+  "mongodb+srv://hieunm1:hieunm98@mycloud.xwhohwz.mongodb.net/?retryWrites=true&w=majority&appName=Mycloud";
+const dbName = "project79";
+const colName = "server";
+
 // Connect to MongoDB
 mongoose
   .connect(
     process.env.MONGO_DB_URL ||
-      "mongodb+srv://hieunm1:<password>@mycloud.xwhohwz.mongodb.net/?retryWrites=true&w=majority&appName=Mycloud"
+      "mongodb+srv://hieunm1:hieunm98@mycloud.xwhohwz.mongodb.net/?retryWrites=true&w=majority&appName=Mycloud"
   )
   .then(() => console.log("MongoDB connected..."))
   .catch((err: Error) => {
