@@ -1,17 +1,27 @@
 import { Schema, model, Document } from "mongoose";
 
 interface IField extends Document {
+  ID: number;
   name: string;
-  location: string;
+  quantity: number;
+  bookedQuantity: number;
 }
 
 const fieldSchema = new Schema<IField>({
+  ID: {
+    type: Number,
+    required: true,
+  },
   name: {
     type: String,
     required: true,
   },
-  location: {
-    type: String,
+  quantity: {
+    type: Number,
+    required: true,
+  },
+  bookedQuantity: {
+    type: Number,
     required: true,
   },
 });
