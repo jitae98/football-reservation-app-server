@@ -1,6 +1,7 @@
 import express from "express";
 import { configDotenv } from "dotenv";
 import mongoose from "mongoose";
+import cors from "cors";
 import bookingRoutes from "./routes/booking.routes.ts";
 import fieldRoutes from "./routes/field.routes.ts";
 import userRoutes from "./routes/user.routes.ts";
@@ -10,18 +11,15 @@ import errorHandler from "./middleware/error.middleware.ts";
 configDotenv();
 const app = express();
 app.use(express.json());
+app.use(cors());
 
-const MONGGO_DB_URL =
+const MONGODB_URL =
+  process.env.MONGO_DB_URL ||
   "mongodb+srv://hieunm1:hieunm98@mycloud.xwhohwz.mongodb.net/?retryWrites=true&w=majority&appName=Mycloud";
-const dbName = "project79";
-const colName = "server";
 
 // Connect to MongoDB
 mongoose
-  .connect(
-    process.env.MONGO_DB_URL ||
-      "mongodb+srv://hieunm1:hieunm98@mycloud.xwhohwz.mongodb.net/?retryWrites=true&w=majority&appName=Mycloud"
-  )
+  .connect(MONGODB_URL)
   .then(() => console.log("MongoDB connected..."))
   .catch((err: Error) => {
     console.log("Failed to connect to MonggoDB", err);
