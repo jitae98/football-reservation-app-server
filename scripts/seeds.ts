@@ -3,7 +3,7 @@ import Field from "../models/field.model";
 
 const mongoURI =
   process.env.MONGO_DB_URL ||
-  "mongodb+srv://hieunm1:<password>@mycloud.xwhohwz.mongodb.net/?retryWrites=true&w=majority&appName=Mycloud";
+    "mongodb+srv://hieunm1:hieunm98@mycloud.xwhohwz.mongodb.net/?retryWrites=true&w=majority&appName=Mycloud";
 
 mongoose
   .connect(mongoURI)

@@ -26,7 +26,8 @@
     "noPropertyAccessFromIndexSignature": false,
 
     // Custom types
-    "typeRoots": ["./types", "./node_modules/@types"]
+    "typeRoots": ["./types", "./node_modules/@types"],
+    "allowSyntheticDefaultImports": true
   },
   "include": ["**/*.ts", "types", "scripts/**/*"]
 }

@@ -5,6 +5,7 @@ import cors from "cors";
 import bookingRoutes from "./routes/booking.routes.ts";
 import fieldRoutes from "./routes/field.routes.ts";
 import userRoutes from "./routes/user.routes.ts";
+import authRoutes from "./routes/auth.routes.ts";
 import authMiddleware from "./middleware/auth.middleware.ts";
 import errorHandler from "./middleware/error.middleware.ts";
 
@@ -26,15 +27,17 @@ mongoose
     process.exit(1);
   });
 // Middleware
-app.use(authMiddleware);
+
 // Error hanndling middleware
 app.use(errorHandler);
 
 // Routes
-app.use("/users", userRoutes);
+app.use("/auth", authRoutes)
+app.use("/users", authMiddleware, userRoutes);
 app.use("/fields", fieldRoutes);
-app.use("/bookings", bookingRoutes);
+app.use("/bookings", authMiddleware, bookingRoutes);
 
-app.listen(process.env.PORT, () => {
-  console.log(`App is running on http://localhost:${process.env.PORT}`);
+const PORT = process.env.PORT || 8080;
+app.listen(PORT, () => {
+  console.log(`App is running on http://localhost:${PORT}`);
 });
