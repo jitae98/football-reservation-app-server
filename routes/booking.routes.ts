@@ -58,8 +58,8 @@ router.post(
       }
 
       const newBooking = new Booking({
-        user: new mongoose.Types.ObjectId(userId),
-        field: new mongoose.Types.ObjectId(fieldId),
+        user: new mongoose.Types.ObjectId(userId as string),
+        field: new mongoose.Types.ObjectId(fieldId as string),
         booking: new Date(bookingDate),
       });
       await newBooking.save();
@@ -68,6 +68,12 @@ router.post(
         .populate("user", "name email")
         .populate("field", "name")
         .exec();
+
+      if (!populatedBooking || !populatedBooking.booking) {
+        return res
+          .status(500)
+          .json({ message: "Error retrieving booking details" });
+      }
 
       res.status(201).json({
         user: populatedBooking?.user,

@@ -18,6 +18,11 @@ router.get("/fields", async (req, res) => {
 router.get("/statistic", async (req, res) => {
   const { date } = req.query;
   console.log(date);
+
+  if (typeof date !== "string") {
+    return res.status(400).json({ message: "Invalid date format" });
+  }
+
   try {
     const fields = await Field.find();
     const bookingsCountPromises = fields.map(async (item) => {
