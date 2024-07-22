@@ -1,21 +1,84 @@
 import type { Request, Response, NextFunction } from "express";
 import { Router } from "express";
+import authMiddleware from "../middleware/auth.middleware.ts";
 import Booking from "../models/booking.model.ts";
+import Field from "../models/field.model.ts";
+import jwt from "jsonwebtoken";
+import mongoose from "mongoose";
 
 const router = Router();
 
-// Create a new booking
-router.post("/", async (req: Request, res: Response, next: NextFunction) => {
-  const { user, field, booking } = req.body;
+const formatDate = (date: Date): string => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
 
-  try {
-    const newBooking = new Booking({ user, field, booking });
-    await newBooking.save();
-    res.status(201).json(newBooking);
-  } catch (err) {
-    next(err);
+router.post(
+  "/",
+  authMiddleware,
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { fieldId, bookingDate } = req.body;
+
+    try {
+      const token = req.headers["authorization"]?.split(" ")[1];
+      if (!token) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      const decoded = jwt.verify(
+        token,
+        process.env.JWT_SECRET!
+      ) as jwt.JwtPayload;
+      const userId = decoded.userId;
+      if (
+        !mongoose.Types.ObjectId.isValid(fieldId) ||
+        !mongoose.Types.ObjectId.isValid(userId)
+      ) {
+        return res.status(400).json({ message: "Invalid fieldId or userId" });
+      }
+
+      // Tìm thông tin sân
+      const field = await Field.findById(fieldId);
+      if (!field) {
+        return res.status(404).json({ message: "Field not found" });
+      }
+
+      // Đếm số lượng booking hiện tại cho sân vào ngày cụ thể
+      const existingBookingsCount = await Booking.countDocuments({
+        field: fieldId,
+        booking: new Date(bookingDate),
+      });
+
+      // So sánh số lượng booking hiện tại với số lượng có sẵn của sân
+      if (existingBookingsCount >= field.quantity) {
+        return res
+          .status(400)
+          .json({ message: "Field is fully booked for this date" });
+      }
+
+      const newBooking = new Booking({
+        user: new mongoose.Types.ObjectId(userId),
+        field: new mongoose.Types.ObjectId(fieldId),
+        booking: new Date(bookingDate),
+      });
+      await newBooking.save();
+
+      const populatedBooking = await Booking.findById(newBooking._id)
+        .populate("user", "name email")
+        .populate("field", "name")
+        .exec();
+
+      res.status(201).json({
+        user: populatedBooking?.user,
+        field: populatedBooking?.field,
+        date: formatDate(populatedBooking?.booking),
+      });
+    } catch (err) {
+      next(err);
+    }
   }
-});
+);
 
 // Get all bookings
 router.get("/", async (req: Request, res: Response, next: NextFunction) => {
