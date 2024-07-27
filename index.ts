@@ -6,6 +6,7 @@ import bookingRoutes from "./routes/booking.routes.ts";
 import fieldRoutes from "./routes/field.routes.ts";
 import userRoutes from "./routes/user.routes.ts";
 import authRoutes from "./routes/auth.routes.ts";
+import passwordResetRoutes from "./routes/passwordReset.routes.ts";
 import authMiddleware from "./middleware/auth.middleware.ts";
 import errorHandler from "./middleware/error.middleware.ts";
 
@@ -36,6 +37,7 @@ app.use("/auth", authRoutes);
 app.use("/users", authMiddleware, userRoutes);
 app.use("/fields", fieldRoutes);
 app.use("/bookings", authMiddleware, bookingRoutes);
+app.use("/password", passwordResetRoutes); // Add password reset routes
 
 app.listen(process.env.PORT, () => {
   console.log(`App is running on http://localhost:${process.env.PORT}`);
